@@ -554,6 +554,15 @@ events:SetScript("OnEvent", function(self, event, arg1)
 	if event == "PLAYER_LOGIN" then
 		playerClass = select(2, UnitClass("player"))
 		db = LibStub("AceDB-3.0"):New("SkomsProcGlowDB", defaults, true)
+			-- Принудительное обновление правил, если локаль клиента изменилась
+local currentLocale = GetLocale()
+if self.db.global.locale ~= currentLocale then
+    self.db.global.locale = currentLocale
+    -- Сброс правил на новые из ns.DefaultRules
+    if self.db.profile and self.db.profile.rules then
+        self.db.profile.rules = nil
+    end
+end
 		P = db.profile
 		local function profileChanged() P = db.profile; Reset(); BuildRules(); BuildCustom(); Notify() end
 		db.RegisterCallback(ns, "OnProfileChanged", profileChanged)
