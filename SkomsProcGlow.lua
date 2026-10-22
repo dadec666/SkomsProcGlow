@@ -21,6 +21,7 @@ local defaults = {
 		overrides = {},        -- [ruleId] = { enabled, glow, color, buff, stacks, threshold }
 		custom = {},           -- user rules
 		nextCustom = 1,
+		locale = "enUS",
 	}
 }
 local P, db
@@ -387,7 +388,6 @@ local function BuildRules()
 				P.overrides[id] = o
 			end
 			if k == "color" then
-				-- false = "back to native": store nil by clearing the override and removing the base colour
 				o.color = ColorOrNil(v)
 				if v == false then o.color = nil end
 			else
@@ -507,10 +507,7 @@ end
 -- ---------------------------------------------------------------------------------------------------------
 -- test: every style on the first buttons
 -- ---------------------------------------------------------------------------------------------------------
--- test: every style on the first buttons (the normal evaluation leaves those buttons alone meanwhile)
-
 function ns.Test()
-	-- visible buttons from every bar we know (Blizzard, Bartender4, ...), lowest action slot first
 	Scan()
 	local list = {}
 	for button in pairs(buttons) do
@@ -554,23 +551,23 @@ events:SetScript("OnEvent", function(self, event, arg1)
 	if event == "PLAYER_LOGIN" then
 		playerClass = select(2, UnitClass("player"))
 		db = LibStub("AceDB-3.0"):New("SkomsProcGlowDB", defaults, true)
-			-- Принудительное обновление правил, если локаль клиента изменилась
-local currentLocale = GetLocale()
-if self.db.global.locale ~= currentLocale then
-    self.db.global.locale = currentLocale
-    -- Сброс правил на новые из ns.DefaultRules
-    if self.db.profile and self.db.profile.rules then
-        self.db.profile.rules = nil
-    end
-end
+		
 		P = db.profile
+		
+		-- Автосброс старых переопределений при смене языка игры
+		local currentLocale = GetLocale()
+		if P.locale ~= currentLocale then
+			P.locale = currentLocale
+			wipe(P.overrides)
+		end
+
 		local function profileChanged() P = db.profile; Reset(); BuildRules(); BuildCustom(); Notify() end
 		db.RegisterCallback(ns, "OnProfileChanged", profileChanged)
 		db.RegisterCallback(ns, "OnProfileCopied", profileChanged)
 		db.RegisterCallback(ns, "OnProfileReset", profileChanged)
 		Compile()
 		local options = BuildOptions()
-		if ns.AboutGroup then options.args.about = ns.AboutGroup(99) end   -- about.lua needs a full restart after an update
+		if ns.AboutGroup then options.args.about = ns.AboutGroup(99) end
 		LibStub("AceConfig-3.0"):RegisterOptionsTable("SkomsProcGlow", options)
 		LibStub("AceConfigDialog-3.0"):AddToBlizOptions("SkomsProcGlow", "SkomsProcGlow")
 		LibStub("AceConfig-3.0"):RegisterOptionsTable("SkomsProcGlowProfiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(db))
@@ -592,6 +589,7 @@ end
 		dirty = true
 	end
 end)
+
 for _, e in ipairs{ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "UNIT_AURA", "UNIT_HEALTH", "UNIT_MAXHEALTH", "PLAYER_TARGET_CHANGED",
                     "UNIT_RAGE", "UNIT_ENERGY", "UNIT_MANA", "UNIT_RUNIC_POWER", "UNIT_FOCUS",
                     "ACTIONBAR_UPDATE_USABLE", "ACTIONBAR_UPDATE_COOLDOWN", "ACTIONBAR_SLOT_CHANGED", "UPDATE_SHAPESHIFT_FORM",
@@ -607,7 +605,6 @@ SlashCmdList["SKOMSPROCGLOW"] = function(msg)
 	if msg == "test" then
 		ns.Test()
 	else
-		-- own window: InterfaceOptionsFrame_OpenToCategory often only opens the AddOns list
 		local ACD = LibStub("AceConfigDialog-3.0")
 		if ACD.OpenFrames["SkomsProcGlow"] then
 			ACD:Close("SkomsProcGlow")
