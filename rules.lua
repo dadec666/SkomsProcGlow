@@ -46,7 +46,7 @@ ns.DefaultRules = {
 		{ id = "PRI_SWD",     ability = Spell(32379, "Shadow Word: Death"), trigger = "health", threshold = 35,                        glow = "button", enabled = false },
 	},
 	MAGE = {
-		{ id = "MAG_PYRO",    ability = Spell(11366, "Pyroblast"),         trigger = "aura",   buff = Spell(48108, "Hot Streak"),      glow = "proc" },
+		{ id = "MAG_PYRO", 	  ability = Spell(11366, "Pyroblast"),         trigger = "aura",   buff = Spell(44448, "Hot Streak"),      glow = "proc" },
 		{ id = "MAG_AM",      ability = Spell(5143, "Arcane Missiles"),    trigger = "aura",   buff = Spell(44401, "Missile Barrage"), glow = "proc" },
 		{ id = "MAG_FB",      ability = Spell(133, "Fireball"),            trigger = "aura",   buff = Spell(57761, "Brain Freeze"),    glow = "proc" },
 		{ id = "MAG_FFB",     ability = Spell(44614, "Frostfire Bolt"),    trigger = "aura",   buff = Spell(57761, "Brain Freeze"),    glow = "proc" },
